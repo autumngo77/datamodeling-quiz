@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>데이터 모델링 이해 퀴즈 20문항</title>
+<meta name="description" content="엔티티, 속성, 관계, 식별자, ERD를 20문항으로 점검하는 데이터 모델링 퀴즈">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='6' y='10' width='52' height='44' rx='5' fill='%230e5f63'/%3E%3Crect x='6' y='10' width='52' height='14' rx='5' fill='%23f4c04e'/%3E%3Crect x='14' y='32' width='36' height='4' fill='%23fff'/%3E%3Crect x='14' y='42' width='24' height='4' fill='%23fff'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --paper: #eef2f4; --card: #ffffff; --ink: #16232e; --muted: #566876; --line: #c3cfd7;
+    --head: #0e5f63; --head-ink: #ffffff; --key: #f4c04e; --key-bg: #fff3cf; --key-ink: #5c4300;
+    --ok: #1d7a4d; --ok-bg: #dff3e7; --bad: #b9402f; --bad-bg: #fbe5e1;
+    --focus: #0e5f63; --note-bg: #e6f1f1;
+    color-scheme: light;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #0f171d; --card: #16212a; --ink: #e6edf1; --muted: #97a8b4; --line: #2b3b47;
+      --head: #2a8f94; --head-ink: #04181a; --key: #d9a93d; --key-bg: #3a3014; --key-ink: #f2d98c;
+      --ok: #62d19a; --ok-bg: #133423; --bad: #ff9b8a; --bad-bg: #3b1a15;
+      --focus: #6fd0d4; --note-bg: #14262b;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #0f171d; --card: #16212a; --ink: #e6edf1; --muted: #97a8b4; --line: #2b3b47;
+    --head: #2a8f94; --head-ink: #04181a; --key: #d9a93d; --key-bg: #3a3014; --key-ink: #f2d98c;
+    --ok: #62d19a; --ok-bg: #133423; --bad: #ff9b8a; --bad-bg: #3b1a15;
+    --focus: #6fd0d4; --note-bg: #14262b;
+    color-scheme: dark;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 12px); }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px; line-height: 1.7; -webkit-text-size-adjust: 100%;
+  }
+  .page { max-width: 720px; margin: 0 auto; padding: 20px 16px 56px; }
+  [hidden] { display: none !important; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+  /* ---------- start ---------- */
+  .hero h1 { font-size: clamp(1.9rem, 6vw, 2.6rem); line-height: 1.2; margin: 8px 0 10px; letter-spacing: -0.02em; font-weight: 800; }
+  .hero p.lead { margin: 0 0 18px; color: var(--muted); max-width: 34em; }
+  .mini-erd { width: 100%; max-width: 440px; height: auto; display: block; margin: 6px 0 22px; }
+  .mini-erd .bx { fill: var(--card); stroke: var(--head); stroke-width: 1.6; }
+  .mini-erd .hd { fill: var(--head); }
+  .mini-erd text { fill: var(--ink); font-size: 11px; font-family: inherit; }
+  .mini-erd text.h { fill: var(--head-ink); font-weight: 700; font-size: 12px; }
+  .mini-erd text.k { fill: var(--key-ink); font-weight: 700; font-size: 9px; }
+  .mini-erd .pk { fill: var(--key-bg); }
+  .mini-erd line { stroke: var(--muted); stroke-width: 1.6; }
+  .mini-erd text.card { fill: var(--bad); font-weight: 700; font-size: 12px; }
+  .facts { list-style: none; padding: 0; margin: 0 0 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  .facts li { border-left: 4px solid var(--key); background: var(--card); padding: 8px 12px; border-radius: 0 6px 6px 0; font-size: .92rem; }
+  .facts b { display: block; font-size: 1.05rem; }
+  .btn {
+    border: 2px solid var(--head); background: var(--head); color: var(--head-ink); font-weight: 700;
+    padding: 11px 22px; border-radius: 6px; font-size: 1rem;
+  }
+  .btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+  .btn.ghost:hover { border-color: var(--head); }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+  .btn-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+
+  /* ---------- chain progress ---------- */
+  .chain { margin: 0 0 18px; display: grid; gap: 10px; }
+  .chain-row { position: relative; display: flex; justify-content: space-between; }
+  .chain-row::before { content: ""; position: absolute; left: 14px; right: 14px; top: 50%; height: 2px; background: var(--line); transform: translateY(-50%); }
+  .node {
+    position: relative; width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--line);
+    background: var(--card); font-size: .78rem; font-weight: 700; display: grid; place-items: center; padding: 0;
+    font-variant-numeric: tabular-nums; color: var(--muted);
+  }
+  .node.current { border-color: var(--head); color: var(--ink); box-shadow: 0 0 0 3px var(--note-bg), 0 0 0 5px var(--head); }
+  .node.ok { background: var(--ok); border-color: var(--ok); color: #fff; }
+  .node.bad { background: var(--bad); border-color: var(--bad); color: #fff; }
+  :root[data-theme="dark"] .node.ok, :root[data-theme="dark"] .node.bad { color: #0b1216; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .node.ok, :root:not([data-theme="light"]) .node.bad { color: #0b1216; } }
+  @media (max-width: 420px) { .node { width: 26px; height: 26px; font-size: .7rem; } .chain-row::before { left: 12px; right: 12px; } }
+
+  /* ---------- entity box (question) ---------- */
+  .entity { background: var(--card); border: 2px solid var(--head); border-radius: 8px; overflow: hidden; }
+  .entity > header { display: flex; align-items: center; gap: 10px; background: var(--head); color: var(--head-ink); padding: 8px 14px; font-weight: 700; }
+  .entity .eid { font-variant-numeric: tabular-nums; }
+  .entity .ecat { font-weight: 500; opacity: .92; }
+  .entity .etype { margin-left: auto; font-size: .8rem; font-weight: 600; border: 1px solid currentColor; border-radius: 99px; padding: 0 10px; }
+  .equestion { padding: 16px 18px 14px; font-size: 1.08rem; font-weight: 600; line-height: 1.65; border-bottom: 1px solid var(--line); word-break: keep-all; }
+  .rows { list-style: none; margin: 0; padding: 0; }
+  .rows li + li .row { border-top: 1px solid var(--line); }
+  .row {
+    display: grid; grid-template-columns: 46px 1fr auto; align-items: stretch; width: 100%; text-align: left;
+    background: transparent; border: 0; padding: 0; min-height: 52px;
+  }
+  .row .key { display: grid; place-items: center; background: var(--key-bg); color: var(--key-ink); font-weight: 800; border-right: 1px solid var(--line); }
+  .row .txt { padding: 10px 14px; align-self: center; word-break: keep-all; }
+  .row .mk { padding: 0 14px; align-self: center; font-size: .82rem; font-weight: 700; white-space: nowrap; }
+  button.row:hover:not(:disabled) { background: var(--note-bg); }
+  .row:disabled { cursor: default; }
+  .row.right { background: var(--ok-bg); }
+  .row.right .key { background: var(--ok); color: #fff; border-right-color: var(--ok); }
+  .row.right .mk { color: var(--ok); }
+  .row.wrong { background: var(--bad-bg); }
+  .row.wrong .key { background: var(--bad); color: #fff; border-right-color: var(--bad); }
+  .row.wrong .mk { color: var(--bad); }
+  :root[data-theme="dark"] .row.right .key, :root[data-theme="dark"] .row.wrong .key { color: #0b1216; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .row.right .key, :root:not([data-theme="light"]) .row.wrong .key { color: #0b1216; } }
+
+  .fill { display: grid; grid-template-columns: 46px 1fr auto; align-items: stretch; }
+  .fill .key { display: grid; place-items: center; background: var(--key-bg); color: var(--key-ink); font-weight: 800; border-right: 1px solid var(--line); }
+  .fill input { font: inherit; border: 0; background: transparent; color: var(--ink); padding: 12px 14px; min-width: 0; }
+  .fill input:focus-visible { outline-offset: -3px; }
+  .fill button { border: 0; border-left: 1px solid var(--line); background: var(--head); color: var(--head-ink); font-weight: 700; padding: 0 18px; }
+  .fill.right { background: var(--ok-bg); } .fill.wrong { background: var(--bad-bg); }
+  .fill.right .key { background: var(--ok); color: #fff; } .fill.wrong .key { background: var(--bad); color: #fff; }
+
+  .note {
+    margin-top: 14px; padding: 12px 16px; background: var(--note-bg); border-left: 4px solid var(--head);
+    border-radius: 0 6px 6px 0; word-break: keep-all;
+  }
+  .note strong { display: block; margin-bottom: 2px; }
+  .note.right strong { color: var(--ok); } .note.wrong strong { color: var(--bad); }
+  .pager { display: flex; justify-content: space-between; gap: 10px; margin-top: 18px; }
+  .hint { color: var(--muted); font-size: .82rem; margin-top: 10px; }
+
+  /* ---------- result ---------- */
+  .score { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin: 4px 0 6px; }
+  .score .num { font-size: clamp(2.8rem, 12vw, 4.2rem); font-weight: 800; line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+  .score .num small { font-size: .45em; color: var(--muted); font-weight: 600; }
+  .score .sub { color: var(--muted); }
+  .bycat { width: 100%; border-collapse: collapse; margin: 14px 0 6px; font-size: .94rem; }
+  .bycat th, .bycat td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); font-weight: 500; }
+  .bycat td.n { font-variant-numeric: tabular-nums; white-space: nowrap; width: 64px; }
+  .bar { height: 8px; background: var(--line); border-radius: 99px; overflow: hidden; }
+  .bar i { display: block; height: 100%; background: var(--head); }
+  h2.sec { font-size: 1.15rem; margin: 30px 0 10px; }
+  details.rev { background: var(--card); border: 1px solid var(--line); border-radius: 8px; margin: 8px 0; }
+  details.rev summary { list-style: none; padding: 10px 14px; cursor: pointer; display: flex; gap: 10px; align-items: baseline; }
+  details.rev summary::-webkit-details-marker { display: none; }
+  details.rev .s { font-weight: 800; min-width: 3.2em; }
+  details.rev.ok .s { color: var(--ok); } details.rev.bad .s { color: var(--bad); }
+  details.rev .t { word-break: keep-all; }
+  details.rev .body { padding: 0 14px 12px 14px; }
+  details.rev dl { margin: 0 0 6px; display: grid; grid-template-columns: 5.5em 1fr; gap: 2px 10px; font-size: .94rem; }
+  details.rev dt { color: var(--muted); } details.rev dd { margin: 0; word-break: keep-all; }
+  footer.src { margin-top: 36px; color: var(--muted); font-size: .82rem; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- 시작 화면 -->
+  <section id="start" class="hero">
+    <svg class="mini-erd" viewBox="0 0 372 104" role="img" aria-label="회원, 주문, 주문상품 엔티티가 1 대 N 관계로 이어진 ERD 예시">
+      <g>
+        <rect class="bx" x="3" y="8" width="96" height="88" rx="4"/><path class="hd" d="M3 12a4 4 0 0 1 4-4h88a4 4 0 0 1 4 4v18H3z"/>
+        <text class="h" x="51" y="24" text-anchor="middle">회원</text>
+        <rect class="pk" x="4" y="32" width="94" height="20"/><text class="k" x="10" y="46">PK</text><text x="30" y="46">회원번호</text>
+        <text x="30" y="68">이름</text><text x="30" y="86">이메일</text>
+      </g>
+      <g>
+        <rect class="bx" x="138" y="8" width="96" height="88" rx="4"/><path class="hd" d="M138 12a4 4 0 0 1 4-4h88a4 4 0 0 1 4 4v18H138z"/>
+        <text class="h" x="186" y="24" text-anchor="middle">주문</text>
+        <rect class="pk" x="139" y="32" width="94" height="20"/><text class="k" x="145" y="46">PK</text><text x="165" y="46">주문번호</text>
+        <text class="k" x="145" y="68" style="fill:var(--muted)">FK</text><text x="165" y="68">회원번호</text><text x="165" y="86">주문일시</text>
+      </g>
+      <g>
+        <rect class="bx" x="273" y="8" width="96" height="88" rx="4"/><path class="hd" d="M273 12a4 4 0 0 1 4-4h88a4 4 0 0 1 4 4v18H273z"/>
+        <text class="h" x="321" y="24" text-anchor="middle">주문상품</text>
+        <rect class="pk" x="274" y="32" width="94" height="20"/><text class="k" x="280" y="46">PK</text><text x="300" y="46">주문번호</text>
+        <rect class="pk" x="274" y="52" width="94" height="20"/><text class="k" x="280" y="66">PK</text><text x="300" y="66">상품번호</text>
+        <text x="300" y="86">수량</text>
+      </g>
+      <line x1="99" y1="60" x2="138" y2="60"/><text class="card" x="104" y="55">1</text><text class="card" x="124" y="55">N</text>
+      <line x1="234" y1="40" x2="273" y2="40"/><text class="card" x="239" y="35">1</text><text class="card" x="259" y="35">N</text>
+    </svg>
+    <h1>데이터 모델링 이해 퀴즈</h1>
+    <p class="lead">개념, ERD 작성, 엔티티, 관계, 식별자, 쇼핑몰 ERD와 사례까지 20문항으로 점검한다. 한 문항을 풀 때마다 바로 정답과 해설이 나온다.</p>
+    <ul class="facts">
+      <li><b>20문항</b>객관식 16 · OX 3 · 빈칸 1</li>
+      <li><b>약 10분</b>해설과 함께 풀기</li>
+      <li><b>범위</b>데이터 모델링의 이해</li>
+    </ul>
+    <button class="btn" id="startBtn">퀴즈 시작</button>
+    <p class="hint">키보드: 1~4 또는 A~D로 선택, O/X로 OX 선택, Enter 또는 → 로 다음 문항</p>
+  </section>
+
+  <!-- 퀴즈 화면 -->
+  <section id="quiz" hidden aria-live="polite">
+    <nav class="chain" id="chain" aria-label="문항 이동"></nav>
+    <article class="entity" id="entity" tabindex="-1"></article>
+    <div id="note"></div>
+    <div class="pager">
+      <button class="btn ghost" id="prevBtn">이전 문항</button>
+      <button class="btn" id="nextBtn">다음 문항</button>
+    </div>
+  </section>
+
+  <!-- 결과 화면 -->
+  <section id="result" hidden>
+    <div class="score"><span class="num" id="scoreNum"></span><span class="sub" id="scoreSub"></span></div>
+    <nav class="chain" id="resultChain" aria-label="문항별 결과"></nav>
+    <table class="bycat" id="bycat"><caption class="hint" style="text-align:left;caption-side:top">영역별 정답</caption><tbody></tbody></table>
+    <div class="btn-row">
+      <button class="btn" id="retryWrong">틀린 문제만 다시 풀기</button>
+      <button class="btn ghost" id="retryAll">처음부터 다시 풀기</button>
+    </div>
+    <h2 class="sec">문항별 해설</h2>
+    <div id="review"></div>
+  </section>
+
+  <footer class="src">문항은 수업 노트 ‘4️⃣ 데이터 모델링의 이해’(참고: 정미나, 2024, 유선배 SQL개발자(SQLD) 과외노트, 시대에듀)를 바탕으로 작성했다.</footer>
+</div>
+
+<noscript><p style="padding:16px">이 퀴즈는 JavaScript가 켜져 있어야 동작한다.</p></noscript>
+
+<script>
+(function () {
+  "use strict";
+  var LETTERS = ["A", "B", "C", "D"];
+
+  // type: mc = 4지선다, ox = 맞으면 O(0)/틀리면 X(1), fill = 빈칸
+  var Q = [
+    { cat: "개념", type: "mc", q: "데이터 모델링을 가장 잘 설명한 것은?",
+      opts: ["현실 세계를 단순화·추상화·명확화하여 데이터베이스로 표현하는 기법", "데이터베이스에 저장된 데이터를 암호화하는 보안 기법", "SQL 문을 자동으로 생성하는 프로그래밍 기법", "서버와 네트워크 장비를 배치하는 인프라 설계 기법"], ans: 0,
+      why: "데이터 모델링은 복잡한 현실을 이해하기 쉬운 형태로 바꾸어 데이터베이스로 표현하는 과정이다. 단순화, 추상화, 명확화가 핵심 키워드다." },
+    { cat: "개념", type: "mc", q: "데이터 모델링을 바라보는 세 가지 관점에 해당하지 않는 것은?",
+      opts: ["데이터(What)", "프로세스(How)", "상호작용(Interaction)", "보안(Security)"], ans: 3,
+      why: "세 가지 관점은 데이터(What), 프로세스(How), 상호작용(Interaction)이다. 보안은 모델링의 관점에 포함되지 않는다." },
+    { cat: "개념", type: "mc", q: "데이터 모델링을 단계적으로 진행할 때 올바른 순서는?",
+      opts: ["개념적 모델링 → 논리적 모델링 → 물리적 모델링", "논리적 모델링 → 개념적 모델링 → 물리적 모델링", "물리적 모델링 → 논리적 모델링 → 개념적 모델링", "개념적 모델링 → 물리적 모델링 → 논리적 모델링"], ans: 0,
+      why: "추상적인 개념에서 시작해 점점 구체화하여 실제 DB에 구현하는 순서로 개념적 → 논리적 → 물리적 모델링이다." },
+    { cat: "개념", type: "mc", q: "데이터 모델링에서 중요하게 고려하는 사항이 아닌 것은?",
+      opts: ["중복 방지", "유연성 확보", "일관성 유지", "데이터 중복 허용"], ans: 3,
+      why: "주요 사항은 중복 방지, 유연성 확보, 일관성 유지이다. 중복을 허용하는 것은 모델링의 목적과 반대된다." },
+
+    { cat: "ERD 작성·표기", type: "mc", q: "ERD 작성 순서로 올바른 것은?",
+      opts: ["엔티티 도출 → 배치 → 관계 설정 → 관계명 → 참여도 → 관계의 필수/선택 여부", "관계 설정 → 엔티티 도출 → 배치 → 관계명 → 참여도 → 관계의 필수/선택 여부", "엔티티 도출 → 관계 설정 → 배치 → 참여도 → 관계명 → 관계의 필수/선택 여부", "배치 → 엔티티 도출 → 관계명 → 관계 설정 → 관계의 필수/선택 여부 → 참여도"], ans: 0,
+      why: "엔티티를 그리고 배치한 뒤 관계를 설정하고, 관계명과 참여도를 표시한 다음 마지막에 관계의 필수/선택 여부를 정한다." },
+
+    { cat: "엔티티·속성", type: "ox", q: "엔티티는 인스턴스(행)가 1개만 있어도 엔티티로 인정된다.", ans: 1,
+      why: "엔티티는 2개 이상의 인스턴스와 1개 이상의 속성을 가져야 한다. 인스턴스가 1개뿐이면 엔티티로 보기 어렵다." },
+    { cat: "엔티티·속성", type: "mc", q: "엔티티 명명 규칙으로 옳지 않은 것은?",
+      opts: ["업무에서 실제로 쓰는 용어를 사용한다", "복수 명사로 짓는다", "띄어쓰기 없이 표현한다", "다른 엔티티와 의미가 중복되지 않게 한다"], ans: 1,
+      why: "엔티티 이름은 단수 명사로 표현한다. 업무 용어를 쓰고, 띄어쓰기를 하지 않으며, 다른 엔티티와 의미가 중복되지 않게 하고, 어떤 데이터를 가졌는지 명확히 드러내야 한다." },
+    { cat: "엔티티·속성", type: "fill", q: "한 엔티티는 여러 인스턴스를, 한 인스턴스는 여러 속성을 가지며, 한 속성은 (    )개의 속성값을 가진다. 빈칸에 알맞은 숫자(또는 말)는?",
+      acc: ["1", "하나", "한", "일"], show: "1(하나)",
+      why: "엔티티 → 인스턴스 → 속성 → 속성값으로 내려갈수록 포함 관계가 이어지며, 한 속성에는 하나의 속성값만 들어간다." },
+    { cat: "엔티티·속성", type: "mc", q: "회원 엔티티가 회원번호(PK), 회원명, 아이디, 핸드폰번호, 회원등록코드로 이루어져 있고 회원등록코드가 다른 엔티티의 기본키를 참조한다면, 회원등록코드의 속성 분류는?",
+      opts: ["기본키(PK)", "외래키(FK)", "일반 속성", "대리식별자"], ans: 1,
+      why: "다른 엔티티의 기본키를 참조하는 속성은 외래키(FK)다. 회원번호는 PK, 나머지 속성은 일반 속성으로 분류한다." },
+
+    { cat: "관계", type: "mc", q: "관계(Relationship)의 구성 요소가 아닌 것은?",
+      opts: ["관계명", "관계차수(1:1, 1:N, N:M)", "관계선택사항(필수/선택)", "속성값"], ans: 3,
+      why: "관계는 관계명, 관계차수, 관계선택사항으로 구성된다. 속성값은 인스턴스의 속성이 가지는 값으로 관계의 구성 요소가 아니다." },
+
+    { cat: "식별자", type: "mc", q: "주식별자의 특성 중 ‘반드시 값이 있어야 하며 NULL이 될 수 없다’는 의미는?",
+      opts: ["유일성", "최소성", "불변성", "존재성"], ans: 3,
+      why: "주식별자는 유일성, 최소성, 불변성, 존재성을 갖는다. 존재성은 값이 반드시 존재해야 한다(NULL 불가)는 뜻이다." },
+    { cat: "식별자", type: "mc", q: "댓글 엔티티가 부모 엔티티인 게시글의 식별자(게시글번호)를 상속받아 사용할 때, 이 식별자의 종류는?",
+      opts: ["내부식별자", "외부식별자", "대리식별자", "보조식별자"], ans: 1,
+      why: "다른 엔티티(부모)의 식별자를 상속받은 식별자는 외부식별자다. 자기 엔티티 안에서 정의된 식별자(예: 게시글번호)는 내부식별자다." },
+    { cat: "식별자", type: "mc", q: "복합식별자의 예로 가장 적절한 것은?",
+      opts: ["학번", "주문번호 + 상품번호", "auto_increment로 만든 ID", "주민등록번호"], ans: 1,
+      why: "복합식별자는 둘 이상의 속성을 조합해 인스턴스를 구분하는 식별자다. 주문상품의 (주문번호 + 상품번호)가 대표적이다." },
+    { cat: "식별자", type: "ox", q: "대리식별자는 현실 세계에 이미 존재하는 식별자(예: 주민등록번호)를 말한다.", ans: 1,
+      why: "현실 세계에 이미 있는 식별자는 원조식별자다. 대리식별자는 시스템이 새로 만든 인공 식별자(예: auto_increment ID)다." },
+
+    { cat: "쇼핑몰 ERD", type: "mc", q: "한 명의 회원이 여러 주문을 할 수 있지만 하나의 주문은 한 명의 회원에게만 속한다. 회원 : 주문의 카디널리티는?",
+      opts: ["1:1", "1:N", "N:M", "M:1"], ans: 1,
+      why: "회원 1명이 주문 여러 개를 가지므로 회원(1) : 주문(N), 즉 1:N 관계다." },
+    { cat: "쇼핑몰 ERD", type: "mc", q: "쇼핑몰 ERD에서 주문상품 엔티티를 두는 가장 큰 이유는?",
+      opts: ["주문과 상품 사이의 N:M 관계를 해소하기 위해", "회원 정보를 암호화하기 위해", "상품 가격을 계산하기 위해", "회원과 주문의 1:N 관계를 N:M으로 바꾸기 위해"], ans: 0,
+      why: "한 주문에는 여러 상품이, 한 상품은 여러 주문에 들어갈 수 있어 주문과 상품은 N:M이다. 주문상품(교차 엔티티)이 이를 두 개의 1:N 관계로 풀어준다." },
+    { cat: "쇼핑몰 ERD", type: "ox", q: "주문이 없으면 주문상품이 존재할 수 없으므로, 주문 → 주문상품은 식별자 관계이다.", ans: 0,
+      why: "부모 없이 자식이 존재할 수 없고 부모의 식별자(주문번호)가 자식의 PK 일부가 되면 식별자 관계다. 주문상품의 PK는 (주문번호, 상품번호)다." },
+
+    { cat: "ERD 작성·표기", type: "mc", q: "ERD의 표기 방법으로 옳은 것은?",
+      opts: ["엔티티는 사각형, 관계는 다이아몬드, 속성은 타원형, 기본키는 밑줄", "엔티티는 타원형, 관계는 사각형, 속성은 다이아몬드, 기본키는 밑줄", "엔티티는 사각형, 관계는 타원형, 속성은 다이아몬드, 기본키는 굵은 글씨", "엔티티는 다이아몬드, 관계는 사각형, 속성은 사각형, 기본키는 밑줄"], ans: 0,
+      why: "엔티티는 사각형, 관계는 다이아몬드, 속성은 타원형으로 그리고 기본키는 밑줄로 표시한다." },
+
+    { cat: "사례 연습", type: "mc", q: "학생과 과목은 N:M 관계라 수강신청 엔티티를 둔다. 수강신청 엔티티가 필요한 이유로 옳지 않은 것은?",
+      opts: ["다대다 관계를 두 개의 1:N 관계로 분해해 구현할 수 있다", "신청일자, 성적 같은 추가 정보를 저장할 수 있다", "데이터 중복을 막고 관계를 명확하게 표현할 수 있다", "학생 엔티티의 속성 수를 줄이려고 학번을 삭제할 수 있다"], ans: 3,
+      why: "수강신청은 학번(FK)과 과목코드(FK)로 두 엔티티를 이어 준다. 학생 엔티티의 학번(PK)을 삭제하는 것은 이유가 될 수 없다." },
+    { cat: "사례 연습", type: "mc", q: "병원 예약 시스템에서 진료과(1) : 의사(N) 관계를 구현하려면 어느 엔티티에 외래키를 두어야 하는가?",
+      opts: ["진료과 엔티티에 의사번호(FK)", "의사 엔티티에 진료과번호(FK)", "예약 엔티티에 진료과번호(FK)", "환자 엔티티에 의사번호(FK)"], ans: 1,
+      why: "1:N 관계에서는 N쪽(의사)에 1쪽(진료과)의 기본키를 외래키로 둔다. 그래서 의사 엔티티에 진료과번호(FK)가 들어간다." }
+  ];
+
+  var CATS = ["개념", "ERD 작성·표기", "엔티티·속성", "관계", "식별자", "쇼핑몰 ERD", "사례 연습"];
+
+  function $(id) { return document.getElementById(id); }
+  var sec = { start: $("start"), quiz: $("quiz"), result: $("result") };
+  var run = [], pos = 0, resp = {}, orders = {};
+
+  function show(name) {
+    Object.keys(sec).forEach(function (k) { sec[k].hidden = k !== name; });
+    window.scrollTo(0, 0);
+  }
+  function shuffle(a) {
+    a = a.slice();
+    for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
+    return a;
+  }
+  function norm(s) { return String(s).toLowerCase().replace(/\s+/g, "").replace(/개$/, ""); }
+  function typeLabel(t) { return t === "mc" ? "객관식" : t === "ox" ? "OX" : "빈칸"; }
+  function pad(n) { return n < 10 ? "0" + n : String(n); }
+
+  function startRun(ids) {
+    run = ids; pos = 0; resp = {}; orders = {};
+    ids.forEach(function (id) {
+      var q = Q[id];
+      if (q.type === "mc") orders[id] = shuffle([0, 1, 2, 3]);
+      else if (q.type === "ox") orders[id] = [0, 1];
+    });
+    show("quiz");
+    render();
+  }
+
+  function answeredCount() { return run.filter(function (id) { return resp[id]; }).length; }
+
+  function buildChain(container, clickable) {
+    container.innerHTML = "";
+    for (var r = 0; r < run.length; r += 10) {
+      var row = document.createElement("div");
+      row.className = "chain-row";
+      run.slice(r, r + 10).forEach(function (id, k) {
+        var idx = r + k;
+        var b = document.createElement("button");
+        b.type = "button"; b.className = "node";
+        var st = resp[id];
+        if (st) { b.classList.add(st.correct ? "ok" : "bad"); b.textContent = st.correct ? "✓" : "✕"; }
+        else b.textContent = idx + 1;
+        if (clickable && idx === pos) { b.classList.add("current"); b.setAttribute("aria-current", "step"); }
+        b.setAttribute("aria-label", (idx + 1) + "번 문항" + (st ? (st.correct ? ", 정답" : ", 오답") : ", 미응답"));
+        b.addEventListener("click", function () {
+          if (clickable) { pos = idx; render(); }
+          else { openReview(id); }
+        });
+        row.appendChild(b);
+      });
+      container.appendChild(row);
+    }
+  }
+
+  function render() {
+    var id = run[pos], q = Q[id], st = resp[id];
+    buildChain($("chain"), true);
+
+    var ent = $("entity");
+    ent.innerHTML = "";
+    var head = document.createElement("header");
+    head.innerHTML = '<span class="eid">Q' + pad(pos + 1) + '</span><span class="ecat"></span><span class="etype"></span>';
+    head.querySelector(".ecat").textContent = q.cat;
+    head.querySelector(".etype").textContent = typeLabel(q.type);
+    ent.appendChild(head);
+
+    var qt = document.createElement("div");
+    qt.className = "equestion"; qt.textContent = q.q;
+    ent.appendChild(qt);
+
+    if (q.type === "fill") {
+      var f = document.createElement("div");
+      f.className = "fill" + (st ? (st.correct ? " right" : " wrong") : "");
+      f.innerHTML = '<span class="key">답</span><input type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="정답 입력"><button type="button">확인</button>';
+      var inp = f.querySelector("input"), btn = f.querySelector("button");
+      if (st) { inp.value = st.text; inp.disabled = true; btn.disabled = true; }
+      var submit = function () {
+        var v = norm(inp.value);
+        if (!v) { inp.focus(); return; }
+        var ok = q.acc.some(function (a) { return norm(a) === v; });
+        resp[id] = { text: inp.value.trim(), correct: ok };
+        render();
+      };
+      btn.addEventListener("click", submit);
+      inp.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); submit(); } });
+      ent.appendChild(f);
+      if (!st) setTimeout(function () { inp.focus(); }, 0);
+    } else {
+      var ul = document.createElement("ul");
+      ul.className = "rows";
+      var order = orders[id];
+      order.forEach(function (oi, slot) {
+        var li = document.createElement("li");
+        var b = document.createElement("button");
+        b.type = "button"; b.className = "row";
+        var key = q.type === "ox" ? (oi === 0 ? "O" : "X") : LETTERS[slot];
+        var label = q.type === "ox" ? (oi === 0 ? "옳은 설명이다" : "옳지 않은 설명이다") : q.opts[oi];
+        b.innerHTML = '<span class="key"></span><span class="txt"></span><span class="mk"></span>';
+        b.querySelector(".key").textContent = key;
+        b.querySelector(".txt").textContent = label;
+        b.dataset.oi = oi; b.dataset.key = key;
+        if (st) {
+          b.disabled = true;
+          if (oi === q.ans) { b.classList.add("right"); b.querySelector(".mk").textContent = "✓ 정답"; }
+          else if (oi === st.picked) { b.classList.add("wrong"); b.querySelector(".mk").textContent = "✕ 내 답"; }
+        } else {
+          b.addEventListener("click", function () { pick(oi); });
+        }
+        li.appendChild(b); ul.appendChild(li);
+      });
+      ent.appendChild(ul);
+    }
+
+    var note = $("note");
+    note.innerHTML = "";
+    if (st) {
+      var n = document.createElement("div");
+      n.className = "note " + (st.correct ? "right" : "wrong");
+      var strong = document.createElement("strong");
+      strong.textContent = st.correct ? "정답이다" : (q.type === "fill" ? "오답이다 · 정답: " + q.show : "오답이다");
+      var p = document.createElement("span");
+      p.textContent = q.why;
+      n.appendChild(strong); n.appendChild(p);
+      note.appendChild(n);
+    }
+
+    $("prevBtn").disabled = pos === 0;
+    var last = pos === run.length - 1;
+    var nb = $("nextBtn");
+    nb.textContent = last ? "결과 보기" : "다음 문항";
+    nb.disabled = !st;
+  }
+
+  function pick(oi) {
+    var id = run[pos];
+    resp[id] = { picked: oi, correct: oi === Q[id].ans };
+    render();
+    $("nextBtn").focus({ preventScroll: true });
+  }
+
+  function next() {
+    if (!resp[run[pos]]) return;
+    if (pos < run.length - 1) { pos++; render(); window.scrollTo(0, 0); return; }
+    var firstOpen = -1;
+    run.forEach(function (id, i) { if (firstOpen < 0 && !resp[id]) firstOpen = i; });
+    if (firstOpen >= 0) { pos = firstOpen; render(); return; }
+    showResult();
+  }
+  function prev() { if (pos > 0) { pos--; render(); window.scrollTo(0, 0); } }
+
+  function answerText(id, st) {
+    var q = Q[id];
+    if (q.type === "fill") return st.text;
+    if (q.type === "ox") return st.picked === 0 ? "O (옳은 설명이다)" : "X (옳지 않은 설명이다)";
+    return q.opts[st.picked];
+  }
+  function correctText(id) {
+    var q = Q[id];
+    if (q.type === "fill") return q.show;
+    if (q.type === "ox") return q.ans === 0 ? "O (옳은 설명이다)" : "X (옳지 않은 설명이다)";
+    return q.opts[q.ans];
+  }
+
+  function showResult() {
+    var right = run.filter(function (id) { return resp[id].correct; }).length;
+    var wrongIds = run.filter(function (id) { return !resp[id].correct; });
+    $("scoreNum").innerHTML = right + "<small> / " + run.length + "</small>";
+    $("scoreSub").textContent = wrongIds.length === 0 ? "모두 맞혔다" : "오답 " + wrongIds.length + "문항";
+    buildChain($("resultChain"), false);
+
+    var tb = $("bycat").querySelector("tbody");
+    tb.innerHTML = "";
+    CATS.forEach(function (c) {
+      var ids = run.filter(function (id) { return Q[id].cat === c; });
+      if (!ids.length) return;
+      var ok = ids.filter(function (id) { return resp[id].correct; }).length;
+      var tr = document.createElement("tr");
+      tr.innerHTML = '<th scope="row"></th><td class="n"></td><td style="width:34%"><div class="bar"><i></i></div></td>';
+      tr.querySelector("th").textContent = c;
+      tr.querySelector(".n").textContent = ok + " / " + ids.length;
+      tr.querySelector("i").style.width = Math.round(ok / ids.length * 100) + "%";
+      tb.appendChild(tr);
+    });
+
+    $("retryWrong").hidden = wrongIds.length === 0;
+
+    var rv = $("review");
+    rv.innerHTML = "";
+    run.forEach(function (id, i) {
+      var q = Q[id], st = resp[id];
+      var d = document.createElement("details");
+      d.className = "rev " + (st.correct ? "ok" : "bad");
+      d.id = "rev" + id;
+      if (!st.correct) d.open = true;
+      var s = document.createElement("summary");
+      s.innerHTML = '<span class="s"></span><span class="t"></span>';
+      s.querySelector(".s").textContent = (i + 1) + "번 " + (st.correct ? "✓" : "✕");
+      s.querySelector(".t").textContent = q.q;
+      var body = document.createElement("div");
+      body.className = "body";
+      var dl = document.createElement("dl");
+      function add(dt, dd) { var a = document.createElement("dt"); a.textContent = dt; var b = document.createElement("dd"); b.textContent = dd; dl.appendChild(a); dl.appendChild(b); }
+      add("내 답", answerText(id, st));
+      if (!st.correct) add("정답", correctText(id));
+      add("해설", q.why);
+      body.appendChild(dl);
+      d.appendChild(s); d.appendChild(body);
+      rv.appendChild(d);
+    });
+    show("result");
+  }
+
+  function openReview(id) {
+    var el = $("rev" + id);
+    if (!el) return;
+    el.open = true;
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  $("startBtn").addEventListener("click", function () { startRun(Q.map(function (_, i) { return i; })); });
+  $("nextBtn").addEventListener("click", next);
+  $("prevBtn").addEventListener("click", prev);
+  $("retryAll").addEventListener("click", function () { startRun(Q.map(function (_, i) { return i; })); });
+  $("retryWrong").addEventListener("click", function () {
+    var ids = run.filter(function (id) { return !resp[id].correct; });
+    if (ids.length) startRun(ids);
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (sec.quiz.hidden || e.metaKey || e.ctrlKey || e.altKey) return;
+    var tag = (e.target && e.target.tagName) || "";
+    if (tag === "INPUT") return;
+    var id = run[pos], q = Q[id];
+    if (e.key === "ArrowRight" || e.key === "Enter") {
+      if (tag === "BUTTON" && e.key === "Enter") return; // let the focused button handle Enter
+      next(); return;
+    }
+    if (e.key === "ArrowLeft") { prev(); return; }
+    if (resp[id]) return;
+    var k = e.key.toUpperCase(), oi = -1;
+    if (q.type === "mc") {
+      var slot = "1234".indexOf(e.key) >= 0 ? "1234".indexOf(e.key) : "ABCD".indexOf(k);
+      if (slot >= 0) oi = orders[id][slot];
+    } else if (q.type === "ox") {
+      if (k === "O") oi = 0; else if (k === "X") oi = 1;
+    }
+    if (oi >= 0) pick(oi);
+  });
+})();
+</script>
+</body>
+</html>
